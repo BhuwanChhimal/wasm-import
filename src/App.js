@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
 
-function App() {
+const App = () => {
+  const [tflite, setTflite] = useState(null);
+  const [tfliteSimd, setTfliteSimd] = useState(null);
+
+  useEffect(() => {
+    async function loadWasm() {
+      const tfliteResponse = await fetch('tflite.wasm');
+      const tfliteArrayBuffer = await tfliteResponse.arrayBuffer();
+      const tfliteModule = await WebAssembly.compile(tfliteArrayBuffer);
+      setTflite(tfliteModule);
+
+      const tfliteSimdResponse = await fetch('tflite-simd.wasm');
+      const tfliteSimdArrayBuffer = await tfliteSimdResponse.arrayBuffer();
+      const tfliteSimdModule = await WebAssembly.compile(tfliteSimdArrayBuffer);
+      setTfliteSimd(tfliteSimdModule);
+    }
+    loadWasm();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {tflite && <h1>tflite.wasm loaded</h1>}
+      {tfliteSimd && <h1>tflite-simd.wasm loaded</h1>}
     </div>
   );
-}
+};
 
 export default App;
